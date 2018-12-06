@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "dist",
+    "sourceRoot": "./src/**/**.ts",
+    "jsx": "react"
+  },
+  "exclude": ["node_modules"]
+}
