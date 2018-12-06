@@ -1,23 +1,37 @@
 declare namespace preact {
   type Key = string | number;
   type Ref<T> = (instance: T) => void;
+
   type ComponentChild = VNode<any> | object | string | number | boolean | null;
   type ComponentChildren = ComponentChild[] | ComponentChild;
   type ComponentProps = Attributes;
-  type PreactHTMLAttributes = ClassAttributes<any>;
   type ComponentFactory<P> = ComponentConstructor<P> | FunctionalComponent<P>;
-  type RenderableProps<P, RefType = any> = Readonly<
-    P & Attributes & { children?: ComponentChildren; ref?: Ref<RefType> }
-  >;
-  // Type alias for a component considered generally, whether stateless or stateful.
   type AnyComponent<P = {}, S = {}> =
     | FunctionalComponent<P>
     | ComponentConstructor<P, S>;
 
+  type PreactHTMLAttributes = ClassAttributes<any>;
+
+  type RenderableProps<P, RefType = any> = Readonly<
+    P & Attributes & { children?: ComponentChildren; ref?: Ref<RefType> }
+  >;
+
+  interface ComponentConstructor<P = {}, S = {}> {
+    new (props: P, context?: any): Component<P, S>;
+    displayName?: string;
+    defaultProps?: Partial<P>;
+  }
+
+  interface FunctionalComponent<P = {}> {
+    (props: RenderableProps<P>, context?: any): VNode<any> | null;
+    displayName?: string;
+    defaultProps?: Partial<P>;
+  }
+
   export interface createElement<P = any> {
     /**
      * 用于创建 VNode (虚拟 DOM 元素) ，VNode 可用作表示轻量级的 DOM 树结构，
-     * 可用于与真实 DOM做 diff 实现高效的 DOM
+     * 可用于与真实 DOM做 diff 实现高效的 DOM 操作
      *
      * Babel 可将 JSX 转为如下格式：
      * createElement('div', { id: 'foo', name : 'bar' }, 'Hello!')
@@ -37,14 +51,11 @@ declare namespace preact {
     ): VNode<any>;
   }
 
-  /**
-   * Define the contract for a virtual node in preact.
-   *
-   * A virtual node has a name, a map of attributes, an array
-   * of child {VNode}s and a key. The key is used by preact for
-   * internal purposes.
-   */
   interface VNode<P = any> {
+    /**
+     * 虚拟节点由名称，一系列属性，一组子节点和 key 组成。
+     * 其中 key 用于性能优化
+     */
     nodeName: ComponentFactory<P> | string;
     attributes: P;
     children: Array<VNode<any> | string>;
@@ -65,18 +76,6 @@ declare namespace preact {
     dangerouslySetInnerHTML?: {
       __html: string;
     };
-  }
-
-  interface FunctionalComponent<P = {}> {
-    (props: RenderableProps<P>, context?: any): VNode<any> | null;
-    displayName?: string;
-    defaultProps?: Partial<P>;
-  }
-
-  interface ComponentConstructor<P = {}, S = {}> {
-    new (props: P, context?: any): Component<P, S>;
-    displayName?: string;
-    defaultProps?: Partial<P>;
   }
 
   interface Component<P = {}, S = {}> {
@@ -128,11 +127,31 @@ declare namespace preact {
     ): ComponentChild;
   }
 
-  function render(
-    node: ComponentChild,
-    parent: Element | Document | ShadowRoot | DocumentFragment,
-    mergeWith?: Element
-  ): Element;
+  interface render {
+    /**
+     * 渲染 JSX 到父元素
+     */
+    (
+      node: VNode,
+      parent: Element | Document | ShadowRoot | DocumentFragment,
+      mergeWith?: Element
+    ): Element;
+  }
+
+  interface diff {
+    /**
+     * 计算出给定 vnode（包括子节点）与真实 DOM 的 diff
+     */
+    (
+      dom: Element,
+      vnode: VNode,
+      context: object,
+      mountAll: boolean,
+      parent?: Element | Document | ShadowRoot | DocumentFragment,
+      componentRoot?: boolean
+    ): Element;
+  }
+
   function rerender(): void;
   function cloneElement(
     element: JSX.Element,

@@ -1,4 +1,5 @@
 import * as React from '../src/index';
+const { render } = React;
 
 const profile = (
   <div>
@@ -6,4 +7,4 @@ const profile = (
   </div>
 );
 
-console.log(profile)
+console.log(profile);
