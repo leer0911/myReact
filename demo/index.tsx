@@ -7,4 +7,4 @@ const profile = (
   </div>
 );
 
-console.log(profile);
+render(profile, document.body);
