@@ -124,7 +124,7 @@ declare namespace preact {
       props?: RenderableProps<P>,
       state?: Readonly<S>,
       context?: any
-    ): ComponentChild;
+    ): ComponentChild | void;
   }
 
   interface render {
@@ -159,10 +159,11 @@ declare namespace preact {
     ...children: ComponentChildren[]
   ): JSX.Element;
 
-  var options: {
+  interface options {
     syncComponentUpdates?: boolean;
     debounceRendering?: (render: () => void) => void;
     vnode?: (vnode: VNode<any>) => void;
     event?: (event: Event) => Event;
-  };
+    [propName: string]: any;
+  }
 }

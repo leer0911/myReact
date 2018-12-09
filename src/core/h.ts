@@ -2,21 +2,17 @@ import options from '../config/options';
 import { VNode } from '../config/vnode';
 import { flatten } from '../utils';
 
-const h: preact.createElement = (
-  nodeName,
-  attributes = undefined,
-  ...children
-) => {
-  const { children: attrChildren, key = undefined } = attributes;
+const h: preact.createElement = (nodeName, attributes = {}, ...children) => {
   const isNormalNode = typeof nodeName !== 'function';
   let stack = [];
   let vnodeChildren = [];
+  let out = null;
 
-  stack.concat(children);
+  stack = stack.concat(children);
 
-  if (attributes && attrChildren != null) {
+  if (attributes && attributes.children != null) {
     if (!stack.length) {
-      stack.push(attrChildren);
+      stack.push(attributes.children);
     }
     delete attributes.children;
   }
@@ -41,12 +37,11 @@ const h: preact.createElement = (
     return currIsString;
   }, false);
 
-  let out = new VNode();
-  Object.assign(new VNode(), {
+  out = Object.assign(new VNode(), {
     nodeName,
     children: vnodeChildren,
-    attributes,
-    key
+    attributes: attributes == null ? undefined : attributes,
+    key: attributes == null ? undefined : attributes.key
   });
 
   if (options.vnode !== undefined) {
@@ -57,3 +52,4 @@ const h: preact.createElement = (
 };
 
 export default h;
+export { h };
